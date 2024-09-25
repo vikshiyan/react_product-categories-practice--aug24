@@ -76,6 +76,7 @@ export const App = () => {
   const handleResetFilters = () => {
     setNameFilter('');
     setSelected(DEFAULT_VALUE);
+    setSelectedCategory(DEFAULT_VALUE);
   };
 
   return (
@@ -182,31 +183,31 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <table
-            data-cy="ProductTable"
-            className="table is-striped is-narrow is-fullwidth"
-          >
-            <thead>
-              <tr>
-                {VALUE_TOPICS.map(topic => (
-                  <th key={topic}>
-                    <span className="is-flex is-flex-wrap-nowrap">
-                      {topic}
-                      <a href="#/">
-                        <span className="icon">
-                          <i data-cy="SortIcon" className="fas fa-sort" />
-                        </span>
-                      </a>
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            {visibleProduct.length !== 0 ? (
+          {visibleProduct.length > 0 ? (
+            <table
+              data-cy="ProductTable"
+              className="table is-striped is-narrow is-fullwidth"
+            >
+              <thead>
+                <tr>
+                  {VALUE_TOPICS.map(topic => (
+                    <th key={topic}>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        {topic}
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort" />
+                          </span>
+                        </a>
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
               <tbody>
                 {visibleProduct.map(product => {
                   return (
-                    <tr data-cy="Product">
+                    <tr data-cy="Product" key={product.id}>
                       <td className="has-text-weight-bold" data-cy="ProductId">
                         {product.id}
                       </td>
@@ -230,12 +231,12 @@ export const App = () => {
                   );
                 })}
               </tbody>
-            ) : (
-              <p data-cy="NoMatchingMessage">
-                No products matching selected criteria
-              </p>
-            )}
-          </table>
+            </table>
+          ) : (
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
+          )}
         </div>
       </div>
     </div>

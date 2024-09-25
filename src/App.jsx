@@ -26,7 +26,7 @@ const products = productsFromServer.map(product => {
 });
 
 export const App = () => {
-  const getVisibleProduct = (productsList, { selected }) => {
+  const getVisibleProduct = (productsList, { selected, nameFilter }) => {
     let filteredProduct = [...productsList];
 
     if (selected !== 'all') {
@@ -35,13 +35,29 @@ export const App = () => {
       );
     }
 
+    const normalizedNameFilter = nameFilter.toLowerCase().trim();
+
+    if (normalizedNameFilter) {
+      filteredProduct = filteredProduct.filter(product => {
+        const normalizedName = product.name.toLowerCase().trim();
+
+        return normalizedName.includes(normalizedNameFilter);
+      });
+    }
+
     return filteredProduct;
   };
 
   const [selected, setSelected] = useState('all');
+  const [nameFilter, setNameFilter] = useState('');
   const visibleProduct = getVisibleProduct(products, {
     selected,
+    nameFilter,
   });
+
+  const handleClearFilters = () => {
+    setNameFilter('');
+  };
 
   return (
     <div className="section">
@@ -84,21 +100,26 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={nameFilter}
+                  onChange={event =>
+                    setNameFilter(event.target.value.trimStart())
+                  }
                 />
-
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
+                {nameFilter.length !== 0 && (
+                  <span className="icon is-right">
+                    {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={handleClearFilters}
+                    />
+                  </span>
+                )}
               </p>
             </div>
 

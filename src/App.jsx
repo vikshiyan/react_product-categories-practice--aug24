@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 
 import usersFromServer from './api/users';
@@ -26,6 +26,23 @@ const products = productsFromServer.map(product => {
 });
 
 export const App = () => {
+  const getVisibleProduct = (productsList, { selected }) => {
+    let filteredProduct = [...productsList];
+
+    if (selected !== 'all') {
+      filteredProduct = filteredProduct.filter(
+        product => product.user.name === selected,
+      );
+    }
+
+    return filteredProduct;
+  };
+
+  const [selected, setSelected] = useState('all');
+  const visibleProduct = getVisibleProduct(products, {
+    selected,
+  });
+
   return (
     <div className="section">
       <div className="container">
@@ -36,13 +53,24 @@ export const App = () => {
             <p className="panel-heading">Filters</p>
 
             <p className="panel-tabs has-text-weight-bold">
-              <a data-cy="FilterAllUsers" href="#/">
+              <a
+                data-cy="FilterAllUsers"
+                href="#/"
+                onClick={() => setSelected('all')}
+                className={selected === 'all' ? 'is-active' : ''}
+              >
                 All
               </a>
 
               {usersFromServer.map(person => {
                 return (
-                  <a data-cy="FilterUser" href="#/" key={person.id}>
+                  <a
+                    data-cy="FilterUser"
+                    href="#/"
+                    key={person.id}
+                    className={selected === person.name ? 'is-active' : ''}
+                    onClick={() => setSelected(person.name)}
+                  >
                     {person.name}
                   </a>
                 );
@@ -120,10 +148,6 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
-
           <table
             data-cy="ProductTable"
             className="table is-striped is-narrow is-fullwidth"
@@ -176,33 +200,39 @@ export const App = () => {
               </tr>
             </thead>
 
-            <tbody>
-              {products.map(product => {
-                return (
-                  <tr data-cy="Product">
-                    <td className="has-text-weight-bold" data-cy="ProductId">
-                      {product.id}
-                    </td>
+            {visibleProduct.length !== 0 ? (
+              <tbody>
+                {visibleProduct.map(product => {
+                  return (
+                    <tr data-cy="Product">
+                      <td className="has-text-weight-bold" data-cy="ProductId">
+                        {product.id}
+                      </td>
 
-                    <td data-cy="ProductName">{product.name}</td>
-                    <td data-cy="ProductCategory">
-                      {`${product.category.icon} - ${product.category.title}`}
-                    </td>
+                      <td data-cy="ProductName">{product.name}</td>
+                      <td data-cy="ProductCategory">
+                        {`${product.category.icon} - ${product.category.title}`}
+                      </td>
 
-                    <td
-                      data-cy="ProductUser"
-                      className={
-                        product.user.sex === 'm'
-                          ? 'has-text-link'
-                          : 'has-text-danger'
-                      }
-                    >
-                      {product.user.name}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
+                      <td
+                        data-cy="ProductUser"
+                        className={
+                          product.user.sex === 'm'
+                            ? 'has-text-link'
+                            : 'has-text-danger'
+                        }
+                      >
+                        {product.user.name}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            ) : (
+              <p data-cy="NoMatchingMessage">
+                No products matching selected criteria
+              </p>
+            )}
           </table>
         </div>
       </div>

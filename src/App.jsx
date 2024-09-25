@@ -26,6 +26,7 @@ const products = productsFromServer.map(product => {
 });
 
 export const App = () => {
+  const DEFAULT_VALUE = 'all';
   const getVisibleProduct = (productsList, { selected, nameFilter }) => {
     let filteredProduct = [...productsList];
 
@@ -48,7 +49,7 @@ export const App = () => {
     return filteredProduct;
   };
 
-  const [selected, setSelected] = useState('all');
+  const [selected, setSelected] = useState(DEFAULT_VALUE);
   const [nameFilter, setNameFilter] = useState('');
   const visibleProduct = getVisibleProduct(products, {
     selected,
@@ -57,6 +58,11 @@ export const App = () => {
 
   const handleClearFilters = () => {
     setNameFilter('');
+  };
+
+  const handleResetFilters = () => {
+    setNameFilter('');
+    setSelected(DEFAULT_VALUE);
   };
 
   return (
@@ -161,6 +167,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleResetFilters}
               >
                 Reset all filters
               </a>

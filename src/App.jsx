@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
 import React, { useState } from 'react';
 import './App.scss';
+import cn from 'classnames';
 
 import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
@@ -27,10 +28,14 @@ const products = productsFromServer.map(product => {
 
 export const App = () => {
   const DEFAULT_VALUE = 'all';
-  const getVisibleProduct = (productsList, { selected, nameFilter }) => {
+  const VALUE_TOPICS = ['ID', 'Product', 'Category', 'User'];
+  const getVisibleProduct = (
+    productsList,
+    { selected, nameFilter, selectedCategory },
+  ) => {
     let filteredProduct = [...productsList];
 
-    if (selected !== 'all') {
+    if (selected !== DEFAULT_VALUE) {
       filteredProduct = filteredProduct.filter(
         product => product.user.name === selected,
       );
@@ -46,14 +51,22 @@ export const App = () => {
       });
     }
 
+    if (selectedCategory !== DEFAULT_VALUE) {
+      filteredProduct = filteredProduct.filter(
+        product => product.category.title === selectedCategory,
+      );
+    }
+
     return filteredProduct;
   };
 
   const [selected, setSelected] = useState(DEFAULT_VALUE);
   const [nameFilter, setNameFilter] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(DEFAULT_VALUE);
   const visibleProduct = getVisibleProduct(products, {
     selected,
     nameFilter,
+    selectedCategory,
   });
 
   const handleClearFilters = () => {
@@ -78,8 +91,8 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
-                onClick={() => setSelected('all')}
-                className={selected === 'all' ? 'is-active' : ''}
+                onClick={() => setSelected(DEFAULT_VALUE)}
+                className={selected === DEFAULT_VALUE ? 'is-active' : ''}
               >
                 All
               </a>
@@ -133,33 +146,26 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
+                className={cn('button is-success mr-6', {
+                  'is-outlined': selectedCategory !== DEFAULT_VALUE,
+                })}
+                onClick={() => setSelectedCategory(DEFAULT_VALUE)}
               >
                 All
               </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a data-cy="Category" className="button mr-2 my-1" href="#/">
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a data-cy="Category" className="button mr-2 my-1" href="#/">
-                Category 4
-              </a>
+              {categoriesFromServer.map(category => (
+                <a
+                  key={category.id}
+                  data-cy="Category"
+                  className={cn('button mr-2 my-1', {
+                    'is-info': selectedCategory === category.title,
+                  })}
+                  href="#/"
+                  onClick={() => setSelectedCategory(category.title)}
+                >
+                  {category.title}
+                </a>
+              ))}
             </div>
 
             <div className="panel-block">
@@ -182,52 +188,20 @@ export const App = () => {
           >
             <thead>
               <tr>
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    ID
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Product
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Category
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    User
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
+                {VALUE_TOPICS.map(topic => (
+                  <th key={topic}>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      {topic}
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
+                ))}
               </tr>
             </thead>
-
             {visibleProduct.length !== 0 ? (
               <tbody>
                 {visibleProduct.map(product => {
